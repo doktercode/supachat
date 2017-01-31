@@ -78,20 +78,32 @@ function register(){
         $('.box-header').addClass('error');
         return;
     }
+
+    if($('#secret').val().length == 0){
+        $('#whoareyou').text('You shall not pass!');
+        $('#secret').val('');
+        $('#secret').attr('placeholder', 'Secret word..');
+        $('.box-header').addClass('error');
+        return;
+    }
     else{
         $.ajax({
         type:'POST',
         url:'/register',
-        data:  {username: $('#username').val(), password: $('#password').val()},
+        data:  {username: $('#username').val(), password: $('#password').val(), secret: $('#secret').val()},
         success:function(xhr, data){
             $('.box-header').removeClass('error');
             login();
         },
         error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr);
             if(xhr.status == 401){
                 $('#whoareyou').text('Username taken!');
                 $('#username').val('');
                 $('#username').attr('placeholder', 'Pick a new one');
+                $('.box-header').addClass('error');
+            }else if(xhr.status == 418){
+                $('#whoareyou').text('Server returned: 418');
                 $('.box-header').addClass('error');
             }else{
                 $('#whoareyou').text('Big bad server error!');

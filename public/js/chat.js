@@ -1,7 +1,7 @@
 var users = [];
 var socket;
-var user = Object();
-var message = Object();
+var user = {};
+var message = {};
 
 var defaultRoom = "Supachat";
 var defaultRoomId = 1;
@@ -25,7 +25,10 @@ $.ajax({
      }
 });
 
-var socket = io('http://localhost:3000/');
+
+
+//var socket = io('http://localhost:3000/');
+var socket = io('http://supachat.hopto.org:3000/');
 
 socket.on('client list update', function(data){
      $('#clientlist').empty();

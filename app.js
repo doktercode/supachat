@@ -16,22 +16,27 @@ require('./controllers/passport')(passport);
 
 const server = app.listen(config.port);
 const sio = require('socket.io').listen(server);
+console.log('running server on: ' + config.port);
+
+
 
 const SupaSession= session({
+    key: 'supaCrunchy',
     secret: config.secret,
     saveUninitialized: true,
-	resave: true
+	resave: true,
+    cookie: { maxAge: 2628000000 }
 });
 const sharedsession = require("express-socket.io-session");
 
-
+app.use(express.static('public'));
 app.use(SupaSession);
 sio.use(sharedsession(SupaSession));
 app.use(cookieParser());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 //app.use(logger('dev'));
-app.use(express.static('public'));
+
 app.set('view engine', 'ejs');
 
 app.use(passport.initialize());
