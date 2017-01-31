@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<meta charset="utf-8">
+	<title>SupaChat</title>
+	<link rel="stylesheet" href="css/animate.css">
+	<link rel="stylesheet" href="css/fonts.css">
+	<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+	<div class="container">
+		<div class="top">
+			<h1 id="title" class="hidden"><span id="logo">SupaC<strike>h</strike>at!</span></h1>
+		</div>
+		<div class="login-box animated fadeInUp">
+			<div class="box-header">
+				<h2 id="whoareyou">Who are you?</h2>
+			</div>
+			<div id="box-content">
+				<label for="username">Username</label>
+				<br/>
+				<input type="text" id="username" required>
+				<br/>
+				<label for="password">Password</label>
+				<br/>
+				<input type="password" id="password" required>
+				<br/>
+				<button type="submit" id="login">Sign In</button> <button type="button" id="register">Register</button>
+				<a href="/auth/google">Login via google</a>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="/jquery/jquery.min.js"></script>
+<script src="js/index.js"></script>
+</html>
