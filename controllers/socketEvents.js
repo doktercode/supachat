@@ -43,10 +43,13 @@ exports = module.exports = (io) => {
                 [data.userId, data.recepientId,data.recepientId,data.userId],
                 io, data, 'room messages update');
             }else{
-
                 QueryRoomMessages('SELECT * FROM messages WHERE room_id = ?', data, io, 'room messages update');
             }
 
+        });
+
+        socket.on('get room update', data => {
+            Query('SELECT * FROM rooms', data, io, 'room list update');
         });
 
         socket.on('leave room', (data) => {
@@ -58,12 +61,11 @@ exports = module.exports = (io) => {
         });
 
         socket.on('create new room', (data) => {
-            Query('INSERT INTO rooms SET ?', data);
+            QueryCreateDeleteRoom('INSERT INTO rooms SET ?', data, io, socket, 'room has been created', true);
         });
 
         socket.on('delete room', (data) =>{
-            Query('DELETE FROM rooms WHERE id = ? AND owner_id = ?', [data.currentRoomId, data.userId]);
-
+            QueryCreateDeleteRoom('DELETE FROM rooms WHERE id = ? AND owner_id = ?', data, io, socket, 'room has been deleted', false);
         });
 
         socket.on('new message', (data) => {
@@ -76,8 +78,14 @@ exports = module.exports = (io) => {
             message.author = data.userName;
             message.recepient = data.recepient;
             message.recepient_id = data.recepientId;
-            if(data.privateRoom)
-                io.sockets.in(getConversationId(data)).emit('new message', message);
+            if(data.privateRoom){
+                let conversationId = getConversationId(data);
+                if(conversationId !== null){
+                    io.sockets.in(getConversationId(data)).emit('new message', message);
+                }else{
+                    io.to(data.userId).emit('partner client disconnected');
+                }
+            }
             else
                 io.sockets.in(message.room).emit('new message', message);
 
@@ -97,11 +105,15 @@ exports = module.exports = (io) => {
 function getConversationId(data){
     var conversation = [];
     console.log(conversation);
-    conversation.push(userlist.filter((u) => { return u.userId === parseInt(data.userId); })[0].socketid);
-    conversation.push(userlist.filter((u) => { return u.userId === parseInt(data.recepientId); })[0].socketid); //TODO: fix bug
-    conversation.sort();
+    try{
+        conversation.push(userlist.filter((u) => { return u.userId === parseInt(data.userId); })[0].socketid);
+        conversation.push(userlist.filter((u) => { return u.userId === parseInt(data.recepientId); })[0].socketid); //TODO: fix bug
+        conversation.sort();
+    }catch(err){
+        console.log(err);
+        return null;
+    }
     return conversation[0]+conversation[1];
-    return null;
 }
 
 function Query(sql, data, io, socketMessage) {
@@ -111,62 +123,88 @@ function Query(sql, data, io, socketMessage) {
             return console.log(err);
         }
         db.query(sql, data,
-        (err, result) => {
-            db.release();
+            (err, result) => {
+                db.release();
+                if(err){
+                    console.log(err);
+                    return console.log(err);
+                }
+                if(io){
+                    return io.emit(socketMessage, result);
+                }
+                return console.log('query successfull');
+            });
+        });
+    }
+
+    function QueryCreateDeleteRoom(sql, data, io, socket, message, create) {
+        db.acquire((err, db) => {
             if(err){
-                console.log(err);
+                db.release();
                 return console.log(err);
             }
-            if(io){
-                return io.emit(socketMessage, result);
-            }
-            return console.log('query successfull');
-        });
-    });
-}
-
-function QueryPrivateMessages(sql, sqlVariables, io, data, socketMessage) {
-    db.acquire((err, db) => {
-        if(err){
-            db.release();
-            return console.log(err);
+            if(create)
+            sqlData = data;
+            else
+            sqlData = [data.currentRoomId, data.userId];
+            db.query(sql, sqlData,
+                (err, result) => {
+                    db.release();
+                    if(err){
+                        console.log(err);
+                        return console.log(err);
+                    }
+                    if(io){
+                        data.id = result.insertId;
+                        return io.to(socket.id).emit(message, data);
+                    }
+                    return console.log('query successfull');
+                });
+            });
         }
-        db.query(sql, sqlVariables,
-        (err, result) => {
-            db.release();
-            if(err){
-                console.log(err);
-                return console.log(err);
-            }
-            if(io){
-                return io.to(getConversationId(data)).emit(socketMessage, result);
-            }
-            return console.log('query successfull');
-        });
-    });
-}
 
-function QueryRoomMessages(sql, data, io, socketMessage) {
-    db.acquire((err, db) => {
-        if(err){
-            db.release();
-            return console.log(err);
-        }
-        db.query(sql, data.currentRoomId,
-        (err, result) => {
-            db.release();
-            if(err){
-                console.log(err);
-                return console.log(err);
+        function QueryPrivateMessages(sql, sqlVariables, io, data, socketMessage) {
+            db.acquire((err, db) => {
+                if(err){
+                    db.release();
+                    return console.log(err);
+                }
+                db.query(sql, sqlVariables,
+                    (err, result) => {
+                        db.release();
+                        if(err){
+                            console.log(err);
+                            return console.log(err);
+                        }
+                        if(io){
+                            return io.to(getConversationId(data)).emit(socketMessage, result);
+                        }
+                        return console.log('query successfull');
+                    });
+                });
             }
-            if(io){
-                return io.to(userlist.filter((user) => { return user.userId === data.userId; })[0].socketid).emit(socketMessage, result);
-            }
-            return console.log('query successfull');
-        });
-    });
-}
 
-function compareHash(password, dbpassword){
-	return bcrypt.compareSync(password, dbpassword);
-}
+            function QueryRoomMessages(sql, data, io, socketMessage) {
+                db.acquire((err, db) => {
+                    if(err){
+                        db.release();
+                        return console.log(err);
+                    }
+                    db.query(sql, data.currentRoomId,
+                        (err, result) => {
+                            db.release();
+                            if(err){
+                                console.log(err);
+                                return console.log(err);
+                            }
+                            if(io){
+                                return io.to(userlist.filter((user) => { return user.userId === data.userId; })[0].socketid).emit(socketMessage, result);
+                            }
+                            return console.log('query successfull');
+                        });
+                    });
+                }
+
+                function compareHash(password, dbpassword){
+                    return bcrypt.compareSync(password, dbpassword);
+                }
