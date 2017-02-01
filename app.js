@@ -12,8 +12,6 @@ const db = require('./controllers/database');
 const passport = require('passport');
 require('./controllers/passport')(passport);
 
-
-
 const server = app.listen(config.port);
 const sio = require('socket.io').listen(server);
 console.log('running server on: ' + config.port);
@@ -24,7 +22,7 @@ const SupaSession= session({
     key: 'supaCrunchy',
     secret: config.secret,
     saveUninitialized: true,
-	resave: true,
+    resave: true,
     cookie: { maxAge: 2628000000 }
 });
 const sharedsession = require("express-socket.io-session");

@@ -14,10 +14,10 @@ $('#register').click(function() {
 });
 
 $('#password').keypress(function(event) {
-if (event.which == 13) {
-    event.preventDefault();
-    login();
-}
+    if (event.which == 13) {
+        event.preventDefault();
+        login();
+    }
 });
 
 function login(){
@@ -42,21 +42,20 @@ function login(){
             url:'/login',
             data:  {username: $('#username').val(), password: $('#password').val()},
             success:function(xhr, result, response){
-                    $('#whoareyou').text('Welcome !!');
-                    $('.container').fadeOut(2000, openChat);
-                    $('.box-header').removeClass('error');
+                $('#whoareyou').text('Welcome !!');
+                $('.container').fadeOut(2000, openChat);
+                $('.box-header').removeClass('error');
 
             },
             error: function (xhr, ajaxOptions, thrownError) {
-               if(xhr.status == 401){
-                   $('#whoareyou').text('Computer says no!');
-                   $('#password').val('');
-                   $('.box-header').addClass('error');
-               }
-               else{
-                   $('#whoareyou').text('Big bad server error!');
-                   $('.box-header').addClass('error');
-               }
+                if(xhr.status == 401){
+                    $('#whoareyou').text('Computer says no!');
+                    $('.box-header').addClass('error');
+                }
+                else{
+                    $('#whoareyou').text('Big bad server error!');
+                    $('.box-header').addClass('error');
+                }
             }
         });
     }
@@ -86,31 +85,40 @@ function register(){
         $('.box-header').addClass('error');
         return;
     }
+
+    if($('#secret').val() !== 'i am a teapot'){ //Just to keep the randoms out
+        $('#whoareyou').text('Not the secret we want!');
+        $('#secret').val('');
+        $('#secret').attr('placeholder', 'Secret word..');
+        $('.box-header').addClass('error');
+        return;
+    }
     else{
         $.ajax({
-        type:'POST',
-        url:'/register',
-        data:  {username: $('#username').val(), password: $('#password').val(), secret: $('#secret').val()},
-        success:function(xhr, data){
-            $('.box-header').removeClass('error');
-            login();
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(xhr);
-            if(xhr.status == 401){
-                $('#whoareyou').text('Username taken!');
-                $('#username').val('');
-                $('#username').attr('placeholder', 'Pick a new one');
-                $('.box-header').addClass('error');
-            }else if(xhr.status == 418){
-                $('#whoareyou').text('Server returned: 418');
-                $('.box-header').addClass('error');
-            }else{
-                $('#whoareyou').text('Big bad server error!');
-                $('.box-header').addClass('error');
+            type:'POST',
+            url:'/register',
+            data:  {username: $('#username').val(), password: $('#password').val(), secret: $('#secret').val()},
+            success:function(xhr, data){
+                $('.box-header').removeClass('error');
+                login();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr);
+                console.log(thrownError);
+                if(xhr.status == 401){
+                    $('#whoareyou').text('Username taken!');
+                    $('#username').val('');
+                    $('#username').attr('placeholder', 'Pick a new one');
+                    $('.box-header').addClass('error');
+                }else if(xhr.status == 418){
+                    $('#whoareyou').text('Server returned: 418');
+                    $('.box-header').addClass('error');
+                }else{
+                    $('#whoareyou').text('Big bad server error!');
+                    $('.box-header').addClass('error');
+                }
             }
-        }
-     });
+        });
     }
 }
 
