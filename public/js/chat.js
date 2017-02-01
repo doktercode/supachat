@@ -25,8 +25,8 @@ $.ajax({
     }
 });
 
-var socket = io('http://localhost:3000/');
-//var socket = io('http://supachat.hopto.org:3000/');
+//var socket = io('http://localhost:3000/');
+var socket = io('http://supachat.hopto.org/');
 
 socket.on('client list update', function(data){
     $('#client-list').empty();
