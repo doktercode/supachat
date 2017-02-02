@@ -48,8 +48,17 @@ exports = module.exports = (io) => {
 
         });
 
-        socket.on('get room update', data => {
+        socket.on('show all users', (data) => {
+            Query('SELECT id, username FROM users', data, io, 'all users list');
+            console.log('showing all users');
+        });
+
+        socket.on('get room update', (data) => {
             Query('SELECT * FROM rooms', data, io, 'room list update');
+        });
+
+        socket.on('get client-list update', (data) => {
+            io.emit('client list update', userlist);
         });
 
         socket.on('leave room', (data) => {
@@ -83,7 +92,7 @@ exports = module.exports = (io) => {
                 if(conversationId !== null){
                     io.sockets.in(getConversationId(data)).emit('new message', message);
                 }else{
-                    io.to(data.userId).emit('partner client disconnected');
+                    io.to(getOwnSocketId(data.userId)).emit('partner client disconnected', message);
                 }
             }
             else
@@ -98,8 +107,6 @@ exports = module.exports = (io) => {
             io.emit('client list update', userlist);
         });
     });
-
-
 };
 
 function getConversationId(data){
@@ -114,6 +121,10 @@ function getConversationId(data){
         return null;
     }
     return conversation[0]+conversation[1];
+}
+
+function getOwnSocketId(id){
+    return userlist.filter((u) => { return u.userId === parseInt(id); })[0].socketid;
 }
 
 function Query(sql, data, io, socketMessage) {

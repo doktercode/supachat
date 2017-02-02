@@ -61,6 +61,11 @@ body {
         padding-left: 220px;
     }
 
+    #myModal{
+        margin-right: -240px;
+
+    }
+
 
     #wrapper.toggled {
         padding-left: 0;

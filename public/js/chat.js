@@ -25,15 +25,15 @@ $.ajax({
     }
 });
 
-//var socket = io('http://localhost:3000/');
-var socket = io('http://supachat.hopto.org/');
+var socket = io('http://localhost:3000/');
+//var socket = io('http://supachat.hopto.org/');
 
 socket.on('client list update', function(data){
     $('#client-list').empty();
     if(data.length === 1)
-    $('#client-count').text('Clients (Alone)');
+    $('#client-count').text('(Alone)');
     else
-    $('#client-count').text('Clients: ' + data.length);
+    $('#client-count').text(data.length);
     $.each(data, function(index, value){
         if(value.userId == user.userId){
             $('#currentuser').empty().append(value.userName);
@@ -101,20 +101,8 @@ socket.on('room messages update', function(data){
             $('<li>').addClass('list-group-item').text('  ' + message.message)
             .prepend($('<span>').addClass('label label-default').text(message.author).css('background-color', '#'+intToRGB(hashCode(message.author))))
             .prepend($('<span>').addClass('label label-default').text(new Date(message.timestamp).toLocaleString()))
-
-
         );
     });
-});
-
-socket.on('partner client disconnected', function(){
-    user.recepient = null;
-    user.privateRoom = false;
-    user.recepientId = null;
-    user.currentRoomId = defaultRoomId;
-    user.currentRoom = defaultRoom;
-    $('#room-title').text(defaultRoom);
-    socket.emit('enter room', user);
 });
 
 socket.on('error', function(error){
@@ -130,7 +118,6 @@ socket.on('new message', function(message){
             $('<li>').addClass('list-group-item').text('  ' + message.message)
             .prepend($('<span>').addClass('label label-default').text(message.author).css('background-color', '#'+intToRGB(hashCode(message.author))))
             .prepend($('<span>').addClass('label label-default').text(new Date().toLocaleString()))
-
         );
     }
 });
@@ -143,6 +130,42 @@ socket.on('room has been created', function(data){
 socket.on('room has been deleted', function(data){
     socket.emit('get room update', user);
     console.log('boo! bye room!' + data);
+});
+
+socket.on('partner client disconnected', function(data){
+    console.log('partner offline');
+    $('#messages').prepend(
+        $('<li>').addClass('list-group-item').text('  ' + data.message)
+        .prepend($('<span>').addClass('label label-default').text(data.author).css('background-color', '#'+intToRGB(hashCode(data.author))))
+        .prepend($('<span>').addClass('label label-default').text(new Date().toLocaleString()))
+    );
+});
+
+socket.on('all users list', function(data){
+    console.log('got all users: ' + JSON.stringify(data));
+
+    $('#client-list').empty();
+    $('#client-count').text('ALL USERS');
+    $.each(data, function(index, value){
+        if(value.id != user.userId){
+            var a = $('<a>').attr('href','#').addClass('client-item list-group-item').attr('id', value.id).text(value.username);
+            a.attr('title','Click to open private chat.');
+            $('#client-list').append(a);
+        }
+    });
+    $('.client-item').on('click', function() {
+        socket.emit('leave room', user);
+        user.recepient = $(this).text();
+        user.recepientId = $(this).attr('id');
+        user.privateRoom = true;
+        user.currentRoom = null;
+        user.currentRoomId = null;
+        $('#room-title').text($(this).text());
+        if (($(window).width() <= 750)) {
+            $("#wrapper").toggleClass("toggled");
+        }
+        socket.emit('enter room', user);
+        });
 });
 
 socket.on('forbidden', function(){
@@ -185,10 +208,22 @@ $('#logout').click(function(){
     logout();
 });
 
-$("#menu-toggle").click(function(e) {
+$('#menu-toggle').click(function(e) {
     e.preventDefault();
     $("#wrapper").toggleClass("toggled");
 });
+
+$('#show-all-users-button').click(function(){
+    socket.emit('show all users');
+    console.log('getting all users');
+});
+
+$('#show-active-users-button').click(function(){
+    console.log('getting active users');
+    socket.emit('get client-list update');
+});
+
+
 
 $( document ).ready(function() {
 
