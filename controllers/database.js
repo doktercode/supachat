@@ -1,6 +1,8 @@
 const mysql = require('mysql');
 const config = require('../config/config');
 
+
+// Create a pool of DB connections that are used by the app. Passport connections are not in this pool
 function Connection() {
     this.pool = null;
 

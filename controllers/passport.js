@@ -7,7 +7,9 @@ const mysql = require('mysql');
 const config = require('../config/config');
 const configAuth = require('../config/auth');
 
+// Modified standard passport approach.
 
+// create own connection for passport
 const connection = mysql.createConnection({
 	host     : config.host,
 	user     : config.user,
@@ -15,6 +17,7 @@ const connection = mysql.createConnection({
 	database : config.database
 });
 
+// serialization and deserialization of users
 module.exports = (passport) => {
 	passport.serializeUser((user, done) => {
 		done(null, user);
@@ -29,6 +32,7 @@ module.exports = (passport) => {
 	);
 });
 
+// define FB strategy TODO: Separate to own table
 passport.use(new FacebookStrategy({
 
 	clientID        : configAuth.facebookAuth.clientID,
@@ -36,16 +40,13 @@ passport.use(new FacebookStrategy({
 	callbackURL     : configAuth.facebookAuth.callbackURL
 
 },
-
-function(token, refreshToken, profile, done) {
-
-	// asynchronous
+(token, refreshToken, profile, done) => {
 	process.nextTick(function() {
 		console.log(profile.displayName);
 		connection.query('SELECT * FROM users WHERE username = ?', profile.displayName, (err,rows) => {
-			if (err)
-			return done(err);
-
+			if (err){
+				return done(err);
+			}
 			if (rows.length) {
 				return done(null, rows[0]);
 			} else {
@@ -61,60 +62,55 @@ function(token, refreshToken, profile, done) {
 					newUserMysql.id = rows.insertId;
 					return done(null, newUserMysql);
 				});
-
-
 			}
-
 		});
 	});
-
 }));
 
-
-
-
+// define Google strategy TODO: Separate to own table
 passport.use(new GoogleStrategy({
-	clientID: configAuth.googleAuth.clientID,
-	clientSecret: configAuth.googleAuth.clientSecret,
-	callbackURL: configAuth.googleAuth.callbackURL,
-	passReqToCallback: true
-},
-(request, accessToken, refreshToken, profile, done) => {
-	process.nextTick(function () {
-		var username = profile.displayName;
-		if(username.length < 2){
-			username = profile.email;
-		}
-		connection.query('SELECT * FROM users WHERE username = ?', username, (err,rows) => {
-			if (err)
-			return done(err);
-			if (rows.length) {
-				return done(null, rows[0]);
-			} else {
-				var newUserMysql = {};
-				newUserMysql.username = username;
-				newUserMysql.password = accessToken;
-				connection.query('INSERT INTO users (username, password) values (?,?)',
-				[username, accessToken], (err,rows) => {
-					console.log(newUserMysql);
-					console.log(err);
-					console.log(rows.insertId);
-					newUserMysql.id = rows.insertId;
-					return done(null, newUserMysql);
-				});
+		clientID: configAuth.googleAuth.clientID,
+		clientSecret: configAuth.googleAuth.clientSecret,
+		callbackURL: configAuth.googleAuth.callbackURL,
+		passReqToCallback: true
+	},
+	(request, accessToken, refreshToken, profile, done) => {
+		process.nextTick(function () {
+			var username = profile.displayName;
+			if(username.length < 2){
+				username = profile.email;
 			}
+			connection.query('SELECT * FROM users WHERE username = ?', username, (err,rows) => {
+				if (err){
+					return done(err);
+				}
+				if (rows.length) {
+					return done(null, rows[0]);
+				} else {
+					var newUserMysql = {};
+					newUserMysql.username = username;
+					newUserMysql.password = accessToken;
+					connection.query('INSERT INTO users (username, password) values (?,?)',
+					[username, accessToken], (err,rows) => {
+						console.log(newUserMysql);
+						console.log(err);
+						console.log(rows.insertId);
+						newUserMysql.id = rows.insertId;
+						return done(null, newUserMysql);
+					});
+				}
+			});
 		});
-	});
-}
+	}
 ));
-
+// local registration strategy
 passport.use('local-register', new LocalStrategy({
 	passReqToCallback : true
 },
 (req, username, password, done) => {
 	console.log('register attempt');
 	if(req.body.secret != 'i am a teapot'){
-		return done(null, false, { message: '418' });
+		return done(null, false, { message: '418' }); //TODO: fix this. secret serverside check
 	}
 	connection.query('SELECT * FROM users WHERE username = ?', username, (err,rows) => {
 		if (err)
@@ -135,6 +131,7 @@ passport.use('local-register', new LocalStrategy({
 	});
 }));
 
+// local login strategy
 passport.use('local-login', new LocalStrategy({
 	passReqToCallback : true
 },
@@ -151,6 +148,7 @@ function(req, username, password, done) {
 }));
 };
 
+// function to compare db hash with bcrypt
 function compareHash(password, dbpassword){
 	return bcrypt.compareSync(password, dbpassword);
 }

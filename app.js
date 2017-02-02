@@ -40,7 +40,7 @@ app.set('view engine', 'ejs');
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// CORS for future api usage
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:'+config.clientport);
     res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');

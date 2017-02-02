@@ -6,122 +6,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/fonts.css">
-    <link
-    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-    rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="css/chat.css">
-
     <title>SupaChat</title>
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
 </head>
 <body>
     <div class="container-fluid">
-    <div class="row">
-
-
-
-
-
-    <div id="wrapper" class="col-lg-12">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-
-                <div class="panel panel-default">
-
-                    <div class="panel-heading" id="currentuser">
-                    </div>
-                    <div class="panel-body">
-                        <a href="#" class="list-group-item" id="logout">Logout</a>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" >
-                        Clients <b id="client-count"></b>
-                    </div>
-                    <div class="list-group" id="client-list">
-                    </div>
-                    <div class="panel-footer">
-                        <a href="#" class="list-group-item" id="show-all-users-button">Show all users</a>
-                        <a href="#" class="list-group-item" id="show-active-users-button">Show active users</a>
-                    </div>
-                </div>
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">Rooms</div>
-                    <div class="list-group" id="room-list">
-                    </div>
-                    <div class="panel-footer">
-                        <a href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">Create a new room</a>
-                        <a href="#" class="list-group-item" id="delete-room-button">Delete selected room</a>
-
-                    </div>
-                </div>
-
-            </ul>
-        </div>
-        <!-- /#sidebar-wrapper -->
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
+        <div class="row">
+            <!-- wrapper-->
+            <div id="wrapper" class="col-lg-12">
+                <!-- Sidebar -->
+                <div id="sidebar-wrapper">
+                    <ul class="sidebar-nav">
                         <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h1 class="panel-title">Deep conversation on meaning of life in room:</h1>
-                                <h1 id="room-title">SupaChat</h1>
+                            <div class="panel-heading" id="currentuser">
                             </div>
                             <div class="panel-body">
-                                <div id="control-buttons">
-                                    <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>
-                                </div>
-                                <form class="form" id="chatform">
-                                    <div class="form-group message-group">
-                                        <input type="text" class="form-control" id="message" autocomplete="off" />
-                                        <br />
-                                        <button type="submit" class="btn btn-default form-submit">Send</button>
+                                <a href="#" class="list-group-item" id="logout">Logout</a>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" >
+                                Clients <b id="client-count"></b>
+                            </div>
+                            <div class="list-group" id="client-list">
+                            </div>
+                            <div class="panel-footer">
+                                <a href="#" class="list-group-item" id="show-all-users-button">Show all users</a>
+                                <a href="#" class="list-group-item" id="show-active-users-button">Show active users</a>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Rooms</div>
+                            <div class="list-group" id="room-list">
+                            </div>
+                            <div class="panel-footer">
+                                <a href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">Create a new room</a>
+                                <a href="#" class="list-group-item" id="delete-room-button">Delete selected room</a>
+
+                            </div>
+                        </div>
+
+                    </ul>
+                </div>
+                <!-- /#sidebar-wrapper -->
+
+                <!-- Page Content -->
+                <div id="page-content-wrapper">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h1 class="panel-title">Deep conversation on meaning of life in room:</h1>
+                                        <h1 id="room-title">SupaChat</h1>
                                     </div>
-                                </form>
-                                <ul class="list-group" id="messages"></ul>
+                                    <div class="panel-body">
+                                        <div id="control-buttons">
+                                            <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>
+                                        </div>
+                                        <form class="form" id="chatform">
+                                            <div class="form-group message-group">
+                                                <input type="text" class="form-control" id="message" autocomplete="off" />
+                                                <br />
+                                                <button type="submit" class="btn btn-default form-submit">Send</button>
+                                            </div>
+                                        </form>
+                                        <ul class="list-group" id="messages"></ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- /#page-content-wrapper -->
+
             </div>
-        </div>
-        <!-- /#page-content-wrapper -->
+            <!-- /#wrapper -->
 
-    </div>
-    <!-- /#wrapper -->
-
-    <!-- Modal -->
-    <div id="myModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Create a new supaRoom</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <p>
-                            Creator is the owner and only owners can delete rooms. Max name lenght is 20 characters.
-                        </p>
-                        <input type="text" class="form-control" id="formName" maxlength="20" size="20" placeholder="Enter a funny name.">
-                        <br />
+            <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Create a new supaRoom</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <p>
+                                    Creator is the owner and only owners can delete rooms. Max name lenght is 20 characters.
+                                </p>
+                                <input type="text" class="form-control" id="formName" maxlength="20" size="20" placeholder="Enter a funny name.">
+                                <br />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" id="createRoomButton" data-dismiss="modal">Create!</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" id="createRoomButton" data-dismiss="modal">Create!</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
             </div>
-        </div>
-    </div>
+            <!-- modal -->
 
-    </div>
+        </div>
     </div>
 
     <script src="jquery/jquery.min.js"></script>

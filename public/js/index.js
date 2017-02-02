@@ -1,10 +1,27 @@
-
+// Focus and unfocus for login page input fields
 $('#username').focus(function() {
     $('label[for="username"]').addClass('selected');
 });
 $('#username').blur(function() {
     $('label[for="username"]').removeClass('selected');
 });
+
+$('#password').focus(function() {
+    $('label[for="password"]').addClass('selected');
+});
+$('#password').blur(function() {
+    $('label[for="password"]').removeClass('selected');
+});
+
+$('#secret').focus(function() {
+    $('label[for="secret"]').addClass('selected');
+});
+$('#secret').blur(function() {
+    $('label[for="secret"]').removeClass('selected');
+});
+
+// Login page click handlers
+
 $('#login').click(function() {
     login();
 });
@@ -20,7 +37,11 @@ $('#password').keypress(function(event) {
     }
 });
 
+// Login page functions
+
+// Local login
 function login(){
+    // Validate username. TODO: do this serverside
     if($('#username').val().length == 0){
         $('#whoareyou').text('No name, no service!');
         $('#username').val('');
@@ -28,7 +49,7 @@ function login(){
         $('.box-header').addClass('error');
         return;
     }
-
+    // Validate password. TODO: do this serverside
     if($('#password').val().length == 0){
         $('#whoareyou').text('We hash, I promise');
         $('#password').val('');
@@ -37,17 +58,19 @@ function login(){
         return;
     }
     else{
+        //POST credentials to passport api
         $.ajax({
             type:'POST',
             url:'/login',
             data:  {username: $('#username').val(), password: $('#password').val()},
             success:function(xhr, result, response){
+                // on success fade out and call openChat function
                 $('#whoareyou').text('Welcome !!');
                 $('.container').fadeOut(2000, openChat);
                 $('.box-header').removeClass('error');
-
             },
             error: function (xhr, ajaxOptions, thrownError) {
+                // handle error codes and provide messages
                 if(xhr.status == 401){
                     $('#whoareyou').text('Computer says no!');
                     $('.box-header').addClass('error');
@@ -60,8 +83,9 @@ function login(){
         });
     }
 }
-
+// Local register.
 function register(){
+    // Validate username TODO: do this serverside
     if($('#username').val().length == 0){
         $('#whoareyou').text('No name, no service!');
         $('#username').val('');
@@ -69,7 +93,7 @@ function register(){
         $('.box-header').addClass('error');
         return;
     }
-
+    // Validate password TODO: do this serverside
     if($('#password').val().length == 0){
         $('#whoareyou').text('We hash, I promise');
         $('#password').val('');
@@ -77,7 +101,7 @@ function register(){
         $('.box-header').addClass('error');
         return;
     }
-
+    // Validate secret TODO: do this serverside
     if($('#secret').val().length == 0){
         $('#whoareyou').text('You shall not pass!');
         $('#secret').val('');
@@ -85,7 +109,7 @@ function register(){
         $('.box-header').addClass('error');
         return;
     }
-
+    // Validate secret TODO: do this serverside
     if($('#secret').val() !== 'i am a teapot'){ //Just to keep the randoms out
         $('#whoareyou').text('Not the secret we want!');
         $('#secret').val('');
@@ -94,17 +118,18 @@ function register(){
         return;
     }
     else{
+        // If validation passed post to passport register api.
         $.ajax({
             type:'POST',
             url:'/register',
             data:  {username: $('#username').val(), password: $('#password').val(), secret: $('#secret').val()},
             success:function(xhr, data){
+                // On successfull registration login using normal login process
                 $('.box-header').removeClass('error');
                 login();
             },
             error: function (xhr, ajaxOptions, thrownError) {
-                console.log(xhr);
-                console.log(thrownError);
+                // Handle errors and provide messages
                 if(xhr.status == 401){
                     $('#whoareyou').text('Username taken!');
                     $('#username').val('');
@@ -124,16 +149,13 @@ function register(){
 
 
 $(document).ready(function () {
+    // animate login box slide in
     $('#logo').addClass('animated fadeInDown');
     $("input:text:visible:first").focus();
     sessionStorage.clear();
 });
 
-function setSessionStorage(username, userid){
-    sessionStorage.setItem('username', username);
-    sessionStorage.setItem('userid', userid);
-}
-
 function openChat() {
+    // on success redirect to chat. TODO: do this serverside
     window.location = '/chat';
 }
